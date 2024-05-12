@@ -27,6 +27,20 @@ async function run() {
 
     const roomsCollections = client.db('hotelRoomsDB').collection('rooms2');
 
+    app.put('/rooms/:id',async(req, res) => {
+      const query = {_id: new ObjectId(req.params.id)};
+      const options = { upsert: true };
+      const data ={
+        $set:{
+          availability: req.body.availability,
+          user_email: req.body.user_email,
+        }
+      }
+      const result = await roomsCollections.updateOne(query, data, options);
+      // console.log(result);
+      res.send(result);
+    })
+
     app.get('/rooms', async(req, res) => {
         const result = await roomsCollections.find().toArray();
         res.send(result);
