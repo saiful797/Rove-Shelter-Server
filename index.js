@@ -27,6 +27,7 @@ async function run() {
 
     const roomsCollections = client.db('hotelRoomsDB').collection('rooms2');
 
+    // Update a data in mongodb collection
     app.put('/rooms/:id',async(req, res) => {
       const query = {_id: new ObjectId(req.params.id)};
       const options = { upsert: true };
@@ -34,6 +35,7 @@ async function run() {
         $set:{
           availability: req.body.availability,
           user_email: req.body.user_email,
+          date: req.body.date,
         }
       }
       const result = await roomsCollections.updateOne(query, data, options);
@@ -41,7 +43,12 @@ async function run() {
       res.send(result);
     })
 
+    // get data from mongodb
     app.get('/rooms', async(req, res) => {
+        const result = await roomsCollections.find().toArray();
+        res.send(result);
+    })
+    app.get('/myBookings', async(req, res) => {
         const result = await roomsCollections.find().toArray();
         res.send(result);
     })
