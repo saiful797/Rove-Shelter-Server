@@ -37,6 +37,7 @@ async function run() {
     // await client.connect();
 
     const roomsCollections = client.db('hotelRoomsDB').collection('rooms2');
+    const reviewsCollections = client.db('hotelRoomsDB').collection('reviews');
 
     // Update a data in mongodb collection
     app.put('/rooms/:id',async(req, res) => {
@@ -74,6 +75,12 @@ async function run() {
     app.get('/prices', async(req, res) => {
         const result = await roomsCollections.find({}).sort({price: 1}).toArray();
         res.send(result);
+    })
+
+    app.post('/reviews', async(req, res) => {
+       const newReview = req.body;
+       const result = await reviewsCollections.insertOne(newReview);
+       res.send(result);
     })
 
     // Send a ping to confirm a successful connection
