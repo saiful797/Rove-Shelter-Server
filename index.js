@@ -36,7 +36,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const roomsCollections = client.db('hotelRoomsDB').collection('rooms2');
+    const roomsCollections = client.db('hotelRoomsDB').collection('rooms');
     const reviewsCollections = client.db('hotelRoomsDB').collection('reviews');
 
     // Update a data in mongodb collection
@@ -53,6 +53,21 @@ async function run() {
       const result = await roomsCollections.updateOne(query, data, options);
       // console.log(result);
       res.send(result);
+    })
+
+    app.put('/roomReviews/:id',async(req, res) => {
+      const query = {_id: new ObjectId(req.params.id)};
+      const options = { upsert: true};
+      const data = {
+        $set: {
+          reviews: req.body.reviews, 
+          rating: req.body.rating 
+        }
+      }
+      const result = await roomsCollections.updateOne(query, data, options);
+      // console.log(result);
+      res.send(result);
+
     })
 
     // get data from mongodb
