@@ -100,7 +100,7 @@ async function run() {
     })
     // get reviews
     app.get('/reviews', async(req, res) => {
-      const result = await reviewsCollections.find({}).sort({time: 1}).toArray();
+      const result = await reviewsCollections.find({}).sort({ _id: -1}).toArray();
       res.send(result);
     })
 
