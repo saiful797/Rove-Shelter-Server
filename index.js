@@ -92,10 +92,16 @@ async function run() {
         res.send(result);
     })
 
+    //post reviews
     app.post('/reviews', async(req, res) => {
        const newReview = req.body;
        const result = await reviewsCollections.insertOne(newReview);
        res.send(result);
+    })
+    // get reviews
+    app.get('/reviews', async(req, res) => {
+      const result = await reviewsCollections.find({}).sort({time: 1}).toArray();
+      res.send(result);
     })
 
     // Send a ping to confirm a successful connection
