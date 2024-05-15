@@ -3,11 +3,13 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: [
@@ -32,6 +34,28 @@ const client = new MongoClient(uri, {
   }
 });
 
+// Middle wares
+const verifyToken = async(req, res, next) => {
+  const token = req.cookies?.token;
+  console.log('value of token from middleware: ', token)
+  if(!token){
+    return res.status(401).send({message: 'not authorized!'})
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
+    // error
+    if(error){
+      console.log(error)
+      return res.status(401).send({message: 'Unauthorized'})
+    }
+    // if token is valid then it would be decoded
+    console.log('value in the token: ', decoded);
+    req.user = decoded;
+
+    next();
+  })
+}
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -50,7 +74,7 @@ async function run() {
       .cookie("token", token , {
          httpOnly: true,
          secure: false,
-         sameSite: 'none'
+        sameSite: 'none'
       })
       .send({success: true});
     })
@@ -91,8 +115,15 @@ async function run() {
         const result = await roomsCollections.find().toArray();
         res.send(result);
     })
-    app.get('/myBookings', async(req, res) => {
-        const result = await roomsCollections.find().toArray();
+    app.get('/myBookings',verifyToken, async(req, res) => {
+        // console.log(req.query.email);
+        // console.log('tok tok token', req.cookies.token);
+
+        let query = {};
+        if(req.query?.email){
+            query = {user_email: req.query.email};
+        }
+        const result = await roomsCollections.find(query).toArray();
         res.send(result);
     })
 
