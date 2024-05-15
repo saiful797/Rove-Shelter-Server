@@ -2,6 +2,7 @@ require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -38,6 +39,21 @@ async function run() {
 
     const roomsCollections = client.db('hotelRoomsDB').collection('rooms');
     const reviewsCollections = client.db('hotelRoomsDB').collection('reviews');
+
+    // Auth related API (jwt token)
+    app.post('/jwt', async(req, res) => {
+      const user = req.body;
+      // console.log(user);
+      const token = jwt.sign(user , process.env.ACCESS_TOKEN_SECRET, {expiresIn : "7d"});
+      // console.log(token);
+      res
+      .cookie("token", token , {
+         httpOnly: true,
+         secure: false,
+         sameSite: 'none'
+      })
+      .send({success: true});
+    })
 
     // Update a data in mongodb collection
     app.put('/rooms/:id',async(req, res) => {
